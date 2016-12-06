@@ -106,7 +106,8 @@ def setup_sse(app):
 
 def setup_theme(app):
     """Configure theme for PyBossa app."""
-    theme = app.config['THEME']
+    #theme = app.config['THEME']
+    theme = 'mytheme'
     app.template_folder = os.path.join('themes', theme, 'templates')
     app.static_folder = os.path.join('themes', theme, 'static')
 
