@@ -1,0 +1,2 @@
+{% from "projects/_helpers.html" import render_project_card_option %}
+{{ render_project_card_option(project, upload_method, title=_('Language Error Detection'), explanation=_('Re-use the Language Error Detection template tasks'), link=url_for(target, short_name=project.short_name, type='gdocs', template='detection'), link_action_text=_('Use the Language Error Detection tasks'), icon='eraser')}}
