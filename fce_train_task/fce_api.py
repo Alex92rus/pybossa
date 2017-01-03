@@ -14,7 +14,7 @@ def extract_data(filename):
     for line in iter_lines:
         #appending the sentence to the data
         if line[0] == 'S':
-            data.append((line[1:-2], []))
+            data.append((line[2:-1], []))
         elif line[0] == 'A':
             tokens = line.split(' ')
             start = int(tokens[1])
