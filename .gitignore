@@ -44,5 +44,6 @@ stanford_sentiment_treebank/client_secret.json
 stanford_sentiment_treebank/gspread-test.json
 */env
 pybossa/themes/charity/static/.webassets-cache/
+pybossa/themes/charity/static/js/gen/
 
 
