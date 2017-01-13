@@ -42,4 +42,7 @@ test/test_cache.py
 init.sh
 stanford_sentiment_treebank/client_secret.json
 stanford_sentiment_treebank/gspread-test.json
+*/env
+pybossa/themes/charity/static/.webassets-cache/
+
 
