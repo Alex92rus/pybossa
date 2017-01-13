@@ -1,5 +1,5 @@
 <!--
-    Task DOM for loading the Sound Cloud iframe
+    Task DOM for loading the Error Detection task frame
     It uses the class="skeleton" to identify the elements that belong to the
     task.
 -->
@@ -22,6 +22,21 @@
     box-shadow: 5px 5px 5px 0px rgba(50, 50, 50, 0.5);
 }
 
+.noErrorTile {
+    font-size: 1.5em;
+    padding: .15em;
+    margin: .2em .05em;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid #222c24;
+    border-radius: .2em;
+    -moz-border-radius: .2em;
+    background-color: #fce100;
+    -webkit-box-shadow: 5px 5px 5px 0px rgba(50, 50, 50, 0.5);
+    -moz-box-shadow: 5px 5px 5px 0px rgba(50, 50, 50, 0.5);
+    box-shadow: 5px 5px 5px 0px rgba(50, 50, 50, 0.5);
+}
+
 #sentence {
     overflow: hidden;
 }
@@ -39,27 +54,15 @@
     text-align: center;
 }
 
-.gameMessages {
-	display: none;
-	clear: both;
-	border: 1px solid 821111;
-	border-radius: .2em;
-	-moz-border-radius: .2em;
-	color: #fcfcf3;
-	background-color: firebrick;
-	-webkit-box-shadow: 5px 5px 5px 0px rgba(50, 50, 50, 0.5);
-	-moz-box-shadow: 5px 5px 5px 0px rgba(50, 50, 50, 0.5);
-	box-shadow: 5px 5px 5px 0px rgba(50, 50, 50, 0.5);
-}
-
 </style>
 <div class="row skeleton"> <!-- Start Skeleton Row-->
     <div class="col-md-12"><!-- Start of Question and Submission DIV (column) -->
         <div id="answer"> <!-- Start DIV for the submission buttons -->
             <!-- If the user clicks this button, the saved answer will be value="yes"-->
             <div id="sentence">
-                <h1 id="title">Click on the place in the sentence below, which contains an error.</h1>
+                <h1 id="title">Select the error in the following sentence. If you think it is free of error choose the "No present error" option.</h1>
             </div> <!-- The sentence will be loaded here -->
+            <div class="noErrorTile" id="no-error">No present error.</div>
             <div id="answer_messages">If you are sure about your given answer please press submit.</div>
             <button class="btn btn-success btn-answer" value='Submit'>Submit</button>
         </div><!-- End of DIV for the submission buttons -->
@@ -116,38 +119,50 @@ var selectedToken = {
 };
 
 // remove the colour of the previously selected cell
-function resetCells(selectedIndex)  {
-    var prefix = 'word_';
-    var tokenIndex = 0;
-    var changedId = '#' + prefix + tokenIndex;
-    while ($(changedId).length > 0) {
-        if (tokenIndex !== selectedIndex) {
-            $(changedId).css({'background-color': '#fcfce8'});
-        }
-        ++tokenIndex;
-        changedId = '#' + prefix + tokenIndex;
+function resetCells(selectedIndex, previousIndex)  {
+    var errorTile = $('#no-error');
+    // dealing with no-error on previous
+    if (previousIndex === -2) {
+        errorTile.css({'background-color': '#fce100'})
+    }
+    var prefix = '#word_';
+    var previousIndexId = prefix + previousIndex;
+    var selectedIndexId = prefix + selectedIndex;
+    if (previousIndex > -1) {
+        $(previousIndexId).css({'background-color': '#fcfce8'});
+    }
+    // dealing with error on selection
+    if (selectedIndex === -2) {
+        errorTile.css({'background-color': 'lime'});
+    }  else {
+        $(selectedIndexId).css({'background-color': 'lime'});
     }
 }
 
-$("#sentence").on('click', "div[id*='word_']", function () {
-    $("#answer_messages").css({'opacity': 1});
-    $("#answer_messages").text('If you are sure about your given answer please press submit.');
-    $(this).css({'background-color': 'lime'});
-    var index = $(this).attr('id');
-    var number = parseInt(index.substring(5));
-    selectedToken.id = number;
-    selectedToken.word = $(this).text();
-    console.log(selectedToken.word);
-    console.log(selectedToken.id);
-    resetCells(number);
-});
+function removeCells() {
+    console.log('remove')
+    var wordIndex = 0;
+    var wordId = '#word_' + wordIndex;
+    while ($(wordId).length > 0) {
+        $(wordId).remove();
+        wordIndex = wordIndex + 1;
+        wordId = '#word_' + wordIndex;
+    }
+}
 
-</script>
-
-<script type="text/javascript">
-(function() {
+function resetState() {
+    removeCells();
+    selectedToken = {
+        word: 'Hi',
+        id: -1
+    };
+    console.log('reset_here')
+    $("#answer_messages").css({'opacity': 0});
+    $('#no-error').css({'background-color': '#fce100'})
+}
 
 function displaySentencePane(sentence) {
+    console.log('display sentence pane');
     var sentenceTokens = sentence.trim().split(/(\s+)/);
     for (i = 0; i < sentenceTokens.length; i++) {
         if (sentenceTokens[i] === " ") {
@@ -170,12 +185,36 @@ function loadUserProgress() {
     });
 }
 
+$("#sentence").on('click', "div[id*='word_']", function () {
+    $("#answer_messages").css({'opacity': 1});
+    $("#answer_messages").css({'background-color': 'green'});
+    $("#answer_messages").text('If you are sure about your given answer please press submit.');
+    var index = $(this).attr('id');
+    var number = parseInt(index.substring(5));
+    resetCells(number, selectedToken.id);
+    selectedToken.id = number;
+    selectedToken.word = $(this).text();
+});
+
+$("#no-error").on('click', function() {
+    $("#answer_messages").css({'opacity': 1});
+    $("#answer_messages").css({'background-color': 'green'});
+    $("#answer_messages").text('If you are sure that there is no error please press submit.');
+    var number = -2;
+    resetCells(number, selectedToken.id);
+    selectedToken.id = number;
+    selectedToken.word = "no-error"
+})
+
+</script>
+
+<script type="text/javascript">
+(function() {
+
 pybossa.taskLoaded(function(task, deferred) {
     if ( !$.isEmptyObject(task) ) {
         // keep this  if block for backwards compatibility...
-        if (task.info.song) {
-            task.info.audio_url = task.info.song;
-        }
+        console.log('submission started task loaded');
         deferred.resolve(task);
     }
     else {
@@ -185,17 +224,27 @@ pybossa.taskLoaded(function(task, deferred) {
 
 pybossa.presentTask(function(task, deferred) {
     if ( !$.isEmptyObject(task) ) {
-        pybossaNotify("Loading audio...", true, "loading");
+        // executed on task start
         loadUserProgress();
         displaySentencePane(task.info.sentence);
         $('#task-id').html(task.id);
-
+        console.log('submission started 0');
+        // executed on submission
         $('.btn-answer').off('click').on('click', function(evt) {
-            var answer = selectedToken;
+            console.log('submission started 1');
             if (selectedToken.id !== -1) {
+                $("#answer_messages").css({'opacity': 0});
+                console.log('submission started 2');
+                var answer = {
+                    id: selectedToken.id,
+                    word: selectedToken.word
+                };
+                resetState();
                 if (typeof answer != "undefined") {
                     pybossa.saveTask(task.id, answer).done(function () {
                         deferred.resolve();
+                        console.log(answer);
+                        updateProgressInfo(true);
                     });
                     if ($("#disqus_thread").is(":visible")) {
                         $('#disqus_thread').toggle();
@@ -207,6 +256,7 @@ pybossa.presentTask(function(task, deferred) {
                 }
             } else {
                 $("#answer_messages").css({'opacity': 1});
+                $("#answer_messages").css({'background-color': 'firebrick'});
                 $("#answer_messages").text('Please select the place of the error.');
             }
         });

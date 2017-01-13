@@ -10,7 +10,9 @@
           "js/vendor/cookieconsent.min.js",
           "js/pybossa/pybossa.js",
           "js/pybossa-player/dist/pybossa-player.min.js",
-          "js/vendor/bootstrap-slider.js"
+          "js/vendor/bootstrap-slider.js",
+          "js/pybossaapi.js",
+          "js/progress_bar.js"
           %}
           <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -37,7 +39,45 @@
     </div>
     {% endif %}
     {{ project.info.task_presenter|safe }}
-
+    {% include "projects/progress_bar.html" %}
+    <script>
+        function  updateProgressInfo(started) {
+            response = pybossaapi.getTaskRuns({{current_user.id}}, 90).done(function (response) {
+                var numberOfSaved = Math.floor(response.length / progressBar.tokenValue);
+                var additionalSave = response.length % progressBar.tokenValue;
+                if (additionalSave === 0 && started) {
+                    $('.handle').find('.img-effect').animate({left: 1}, {
+                        duration: 2000,
+                        start: function () {
+                            $('#stats-image').attr('src', "/static/img/transition_5.png")
+                            $(this).addClass('img-glow');
+                        },
+                        complete: function () {
+                            $('#stats-image').attr('src', "/static/img/transition_0.png")
+                            $(this).removeClass('img-glow')
+                        }
+                    })
+                } else if (started) {
+                    $('.handle').find('.img-effect').animate({left: 1}, {
+                        duration: 2000,
+                        start: function () {
+                            $('#stats-image').attr('src', "/static/img/count_transition_" + additionalSave + ".png");
+                            $(this).addClass('img-glow');
+                        },
+                        complete: function () {
+                            $('#stats-image').attr('src', "/static/img/transition_" + additionalSave + ".png");
+                            $(this).removeClass('img-glow')
+                        }
+                    });
+                } else {
+                    var imageUrl = "/static/img/transition_" + additionalSave + ".png";
+                    $('#stats-image').attr('src', imageUrl)
+                }
+                $('#progress-info').text("You made " + Math.floor(response.length / (progressBar.tokenValue)) + " people happy so far.");
+            });
+        }
+        updateProgressInfo(false);
+    </script>
     <div id='PYBOSSA_USER_LOCALE' hidden>
         {% if current_user.is_anonymous() %}
         en

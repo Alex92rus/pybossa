@@ -11,7 +11,7 @@
         {{ helper.render_project_local_nav(project, active_link, current_user, pro_features) }}
     </div>
     <!-- Project -->
-    <div class="col-sm-6 col-md-6" style="min-height:400px">
+    <div class="col-sm-9 col-md-9" style="min-height:400px">
         <div class="row">
             <div class="col-sm-8 col-md-8">
                 <h1>{{project.name}}</h1>
@@ -33,24 +33,26 @@
         </p>
         <p id="ckan_license" style="display:none"><strong>Data License</strong>: <span id="ckan_license_value"></span></p>
         </div>
-    </div>
-    <div class="col-sm-3 col-md-3">
+        <!-- <div class="col-sm-3 col-md-3">
         {{ helper.render_user_progress_section()}}
-        <div id="progress_info"></div>
+        <div id="progress_info"></div> -->
+
     </div>
-    {% assets filters="jsmin", output="js/gen/default.min.js",
+    {% assets filters="jsmin", output="js/gen/projects.min.js",
               "js/vendor/jquery-2.2.3.js", "js/vendor/bootstrap.js",
               "js/vendor/modernizr.min.js", "js/flashmessages.js",
-              "js/vendor/cookieconsent.min.js", "js/custom.js"
+              "js/vendor/cookieconsent.min.js", "js/pybossaapi.js",
+              "js/progress_bar.js"
               %}
               <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
-        <script>
-            response = pybossaapi.getTaskRuns({{current_user.id}}).done(function (response) {
-                console.log(response)
-                $('#progress_info').text("user score: " + response.length);
-            })
-        </script>
+    {% include "projects/progress_bar.html" %}
+    <script>
+        response = pybossaapi.getTaskRuns({{current_user.id}}).done(function (response) {
+            console.log(response)
+            $('#progress-info').text("user score: " + response.length);
+        })
+    </script>
     {% else %}
     <div class="page-header">
         <h1>{{ _('Sorry! This project does not exist.') }}</h1>

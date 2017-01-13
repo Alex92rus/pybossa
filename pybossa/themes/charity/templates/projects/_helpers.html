@@ -340,8 +340,11 @@
 
 {%- macro render_user_progress_section() %}
 <div class="user-stats-section">
-    <div class="row">
-        <img id="stats-image" class="stats-image" width="100px" height="100px" src="{{url_for('static', filename='img/drinking.progress.png')}}" style="" onError="this.onerror=null;this.src='{{url_for('static', filename='img/drinking.progress.png')}}';">
-    </div>    
+    <div class="row img-reveal">
+        <div class="handle">
+            <div class="img-effect"></div>
+            <img id="stats-image" class="stats-image" src="{{url_for('static', filename='img/transition_0.png')}}" style="" onError="this.onerror=null;this.src='{{url_for('static', filename='img/drinking.progress.png')}}';">
+        </div>
+    </div>
 </div>
 {% endmacro -%}
